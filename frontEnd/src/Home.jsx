@@ -23,7 +23,7 @@ function Home() {
     //     .catch(err => console.log(err));
     // }
 
-    
+
 //Вместо перезагрузки
     const handleDelete = (id) => {
         axios.delete('http://localhost:8081/delete/' + id)
