@@ -7,6 +7,18 @@ function Update() {
     const {id} = useParams();
     const navigate = useNavigate();
 
+    const [values, setValues] = useState({
+        first_name: '',
+        middle_name: '',
+        last_name: '',
+        passport_number: '',
+        phone: '',
+        contact_info: ''
+    });
+
+    // Регулярные выражения для проверки паспорта и телефона
+    const passportRegex = /^\d{4}\s\d{6}$/; // Проверка на российский паспорт
+    const phoneRegex = /^\+7\d{10}$/; // Проверка на российский номер телефона
 
     useEffect(() => {
         axios.get('http://localhost:8081/read/' + id)
@@ -14,28 +26,43 @@ function Update() {
                 console.log(res);
                 if (res.data.length > 0) {
                     setValues({
-                        name: res.data[0].full_name,
-                        email: res.data[0].contact_info
+                        first_name: res.data[0].first_name,
+                        middle_name: res.data[0].middle_name,
+                        last_name: res.data[0].last_name,
+                        passport_number: res.data[0].passport_number,
+                        phone: res.data[0].phone,
+                        contact_info: res.data[0].contact_info
                     });
                 }
             })
             .catch(err => console.log(err));
     }, [id]); // Добавлено id в зависимости
 
-
-
-    const [values, setValues] = useState({
-        name: '',
-        email: ''
-    });
-
     const handleUpdate = (event) => {
         event.preventDefault();
+
+    //Проверка папорта
+    if(!passportRegex.test(values.passport_number)) {
+        alert("Некорректный номер папорта. Пожалуйста, введите в формате: 1234 567890.");
+        return
+    }
+
+    //Проверка номера телефона
+    if(!phoneRegex.test(values.phone)) {
+        alert("Некорректный номер телефона. Пожалуйста, введите в формате: +7XXXXXXXXXX.");
+        return;
+    }
+
         // Отправляем данные full_name и contact_info
         axios.put('http://localhost:8081/update/' + id, {
-            full_name: values.name,
-            contact_info: values.email
+            first_name: values.first_name,
+            middle_name: values.middle_name,
+            last_name: values.last_name,
+            passport_number: values.passport_number,
+            phone: values.phone,
+            contact_info: values.contact_info
         })
+        
         .then(res => {
             console.log(res);
             navigate('/');
@@ -43,27 +70,47 @@ function Update() {
             console.log(err);
         });
     };
-    
-  return (
-    <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
-        <div className='w-50 bg-white rounded p-3'>
-            <form onSubmit={handleUpdate}>
-                <h2>Update clients</h2>
-                <div className='mb-2'>
-                    <label htmlFor="">Name</label>
-                    <input type="text" placeholder='Enter Name' className='form-control' value={values.name}
-                    onChange={e => setValues({...values, name: e.target.value})}/>
-                </div>
-                <div className='mb-2'>
-                    <label htmlFor="">Email</label>
-                    <input type="email" placeholder='Enter Email' className='form-control' value={values.email}
-                    onChange={e => setValues({...values, email: e.target.value})}/>
-                </div>
-                <button className='btn btn-success'>Update</button>
-            </form>
+
+    return (
+        <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
+            <div className='w-50 bg-white rounded p-3'>
+                <form onSubmit={handleUpdate}>
+                    <h2>Update clients</h2>
+                    <div className='mb-2'>
+                        <label htmlFor="">First Name</label>
+                        <input type="text" placeholder='Enter First Name' className='form-control' value={values.first_name}
+                        onChange={e => setValues({...values, first_name: e.target.value})}/>
+                    </div>
+                    <div className='mb-2'>
+                        <label htmlFor="">Middle Name</label>
+                        <input type="text" placeholder='Enter Middle Name' className='form-control' value={values.middle_name}
+                        onChange={e => setValues({...values, middle_name: e.target.value})}/>
+                    </div>
+                    <div className='mb-2'>
+                        <label htmlFor="">Last Name</label>
+                        <input type="text" placeholder='Enter Last Name' className='form-control' value={values.last_name}
+                        onChange={e => setValues({...values, last_name: e.target.value})}/>
+                    </div>
+                    <div className='mb-2'>
+                        <label htmlFor="">Passport</label>
+                        <input type="passport" placeholder='Enter Passport' className='form-control'
+                        onChange={e => setValues({...values, passport_number: e.target.value})}/>
+                    </div>
+                    <div className='mb-2'>
+                        <label htmlFor="">Phone</label>
+                        <input type="phone" placeholder='Enter Phone' className='form-control' value={values.phone}
+                        onChange={e => setValues({...values, phone: e.target.value})}/> 
+                    </div>
+                    <div className='mb-2'>
+                        <label htmlFor="">Email</label>
+                        <input type="email" placeholder='Enter Email' className='form-control' value={values.contact_info}
+                        onChange={e => setValues({...values, contact_info: e.target.value})}/> 
+                    </div>
+                    <button className='btn btn-success'>Update</button>
+                </form>
+            </div>
         </div>
-    </div>
-  )
-}
+    )
+    }
 
 export default Update

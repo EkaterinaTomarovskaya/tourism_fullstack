@@ -4,7 +4,7 @@ import axios from 'axios';
 
 function Read() {
     const { id } = useParams();
-    const [client, setClient] = useState([]); // Исправлено useStare на useState
+    const [client, setClient] = useState([]);
 
     useEffect(() => {
         axios.get('http://localhost:8081/read/' + id)
@@ -22,12 +22,16 @@ function Read() {
                 {client.length > 0 && ( // Проверяем, есть ли данные
                     <div className='p-2'>
                         <h2>{client[0].id}</h2>
-                        <h2>{client[0].full_name}</h2>
+                        <h2>{client[0].first_name}</h2>
+                        <h2>{client[0].middle_name}</h2>
+                        <h2>{client[0].last_name}</h2>
+                        <h2>{client[0].passport_number}</h2>
+                        <h2>{client[0].phone}</h2>
                         <h2>{client[0].contact_info}</h2>
                     </div>
                 )}
                 <Link to="/" className='btn btn-primary me-2'>Back</Link>
-                <Link to={`/edit/${client.id}`} className='btn btn-info'>Edit</Link>
+                <Link to={`/edit/${client.id}`} className='btn btn-info'>Edit</Link>            
             </div>
         </div>
     );
