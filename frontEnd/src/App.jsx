@@ -6,6 +6,7 @@ import Create from './Create'
 import Read from './Read';
 import Update from './Update';
 import HomeCountry from './HomeCountry';
+import HomeTours from './HomeTours'
 
 
 
@@ -19,6 +20,8 @@ function App() {
             <Route path='/read/:id' element={<Read />} />
             <Route path='/edit/:id' element={<Update />} />
             <Route path='/country/:id' element={<HomeCountry />} />
+            <Route path='/tours/:id' element={<HomeTours />} />
+
             
         </Routes>
     </BrowserRouter>

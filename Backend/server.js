@@ -118,6 +118,51 @@ app.post('/assign-country', (req, res) => {
 });
 
 
+
+// Получаем список туров для конкретного клиента
+app.get('/tours', (req, res) => {
+    const sql = "SELECT * FROM tours";
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.json({ message: "Error fetching tours", error: err });
+        }
+
+        console.log("Tours found:", result);
+        return res.json(result);
+    });
+});
+
+// Добавляем тур клиенту
+app.post('/tours', (req, res) => {
+    const { name, country_id, city, start_date, end_date, price } = req.body;
+    const sql = "INSERT INTO tours (name, country_id, city, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?)";
+
+    db.query(sql, [name, country_id, city, start_date, end_date, price], (err, result) => {
+        if (err) {
+            console.error("Error adding tour:", err);
+            return res.json({ message: "Error adding tour", error: err });
+        }
+        return res.json({ id: result.insertId, name, country_id, city, start_date, end_date, price });
+    });
+});
+
+
+// Привязка тура к клиенту
+app.post('/assign-tour', (req, res) => {
+    const { tour_id } = req.body; // Убираем client_id
+    const sql = "INSERT INTO client_tours (tour_id) VALUES (?)";
+
+    db.query(sql, [tour_id], (err, result) => {
+        if (err) {
+            console.error("Error assigning tour:", err);
+            return res.json({ message: "Error assigning tour", error: err });
+        }
+        res.json({ message: "Tour successfully assigned!" });
+    });
+});
+
+
 // Запускаем сервер
 app.listen(8081, () => {
     console.log("Listening on port 8081");
