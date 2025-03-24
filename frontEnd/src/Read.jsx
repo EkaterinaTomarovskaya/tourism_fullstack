@@ -20,14 +20,12 @@ function Read() {
             <div className='w-50 bg-white rounded p-3'> 
                 <h2>Clients Detail</h2>
                 {client.length > 0 && ( // Проверяем, есть ли данные
-                    <div className='p-2'>
-                        <h2>{client[0].id}</h2>
-                        <h2>{client[0].first_name}</h2>
-                        <h2>{client[0].middle_name}</h2>
-                        <h2>{client[0].last_name}</h2>
-                        <h2>{client[0].passport_number}</h2>
-                        <h2>{client[0].phone}</h2>
-                        <h2>{client[0].contact_info}</h2>
+                    <div className='p-1'>
+                        <h2>ID: {client[0].id}</h2>
+                        <h2>Full name: {client[0].first_name} {client[0].middle_name} {client[0].last_name}</h2>
+                        <h2>Passport: {client[0].passport_number}</h2>
+                        <h2>Phone: {client[0].phone}</h2>
+                        <h2>Contact info: {client[0].contact_info}</h2>
                     </div>
                 )}
                 <Link to="/" className='btn btn-primary me-2'>Back</Link>

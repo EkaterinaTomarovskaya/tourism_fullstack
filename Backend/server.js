@@ -107,6 +107,7 @@ app.post('/countries/:id', (req, res) => {
     });
 });
 
+// Привязка страны к клиенту
 app.post('/assign-country', (req, res) => {
     const { client_id, country_id } = req.body;
     const sql = "INSERT INTO client_countries (client_id, country_id) VALUES (?, ?)";
@@ -119,16 +120,30 @@ app.post('/assign-country', (req, res) => {
 
 
 
-// Получаем список туров для конкретного клиента
-app.get('/tours', (req, res) => {
-    const sql = "SELECT * FROM tours";
-    db.query(sql, (err, result) => {
+
+// Получаем список стран для клиента
+app.get('/countries/:id', (req, res) => {
+    const sql = "SELECT * FROM countries WHERE client_id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) return res.json({ message: "Error fetching countries", error: err });
+        return res.json(result);
+    });
+});
+
+
+
+
+
+
+// Получаем список туров для конкретного клиента и страны
+app.get('/tours/:client_id/:country_id', (req, res) => {
+    const { client_id, country_id } = req.params;
+    const sql = "SELECT * FROM tours WHERE country = ?";
+    db.query(sql, [country_id], (err, result) => {
         if (err) {
-            console.error("Database error:", err);
+            console.error("Error fetching tours:", err);
             return res.json({ message: "Error fetching tours", error: err });
         }
-
-        console.log("Tours found:", result);
         return res.json(result);
     });
 });
@@ -148,12 +163,12 @@ app.post('/tours', (req, res) => {
 });
 
 
-// Привязка тура к клиенту
+// Привязка тура к клиенту и стране
 app.post('/assign-tour', (req, res) => {
-    const { tour_id } = req.body; // Убираем client_id
-    const sql = "INSERT INTO client_tours (tour_id) VALUES (?)";
+    const { client_id, tour_id } = req.body; // Добавили client_id
+    const sql = "INSERT INTO client_tours (client_id, tour_id) VALUES (?, ?)"; // Привязка по client_id и tour_id
 
-    db.query(sql, [tour_id], (err, result) => {
+    db.query(sql, [client_id, tour_id], (err, result) => {
         if (err) {
             console.error("Error assigning tour:", err);
             return res.json({ message: "Error assigning tour", error: err });

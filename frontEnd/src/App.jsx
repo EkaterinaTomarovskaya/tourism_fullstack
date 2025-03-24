@@ -15,13 +15,12 @@ function App() {
   return (
     <BrowserRouter>
         <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/create' element={<Create />} />
-            <Route path='/read/:id' element={<Read />} />
-            <Route path='/edit/:id' element={<Update />} />
-            <Route path='/country/:id' element={<HomeCountry />} />
-            <Route path='/tours/:id' element={<HomeTours />} />
-
+        <Route path='/' element={<Home />} />
+        <Route path='/create' element={<Create />} />
+        <Route path='/read/:id' element={<Read />} />
+        <Route path='/edit/:id' element={<Update />} />
+        <Route path='/country/:id' element={<HomeCountry />} />
+        <Route path='/tours/:client_id/:country_id' element={<HomeTours />} />
             
         </Routes>
     </BrowserRouter>
