@@ -14,6 +14,8 @@ const db = mysql.createConnection({
     database: 'tourism_db'
 });
 
+//------------------------------КЛИЕНТЫ------------------------------------//
+
 // Маршрут для получения всех клиентов
 app.get('/', (req, res) => {
     const sql = "SELECT * FROM clients";
@@ -87,6 +89,9 @@ app.post('/countries', (req, res) => {
     });
 });
 
+
+//------------------------------СТРАНЫ------------------------------------//
+
 // Получаем список стран для клиента
 app.get('/countries/:id', (req, res) => {
     const sql = "SELECT * FROM countries WHERE client_id = ?";
@@ -118,9 +123,6 @@ app.post('/assign-country', (req, res) => {
     });
 });
 
-
-
-
 // Получаем список стран для клиента
 app.get('/countries/:id', (req, res) => {
     const sql = "SELECT * FROM countries WHERE client_id = ?";
@@ -133,7 +135,7 @@ app.get('/countries/:id', (req, res) => {
 
 
 
-
+//------------------------------ТУРЫ------------------------------------//
 
 // Получаем список туров для конкретного клиента и страны
 app.get('/tours/:client_id/:country_id', (req, res) => {
@@ -151,7 +153,7 @@ app.get('/tours/:client_id/:country_id', (req, res) => {
 // Добавляем тур клиенту
 app.post('/tours', (req, res) => {
     const { name, country_id, city, start_date, end_date, price } = req.body;
-    const sql = "INSERT INTO tours (name, country_id, city, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tours (name, country_id, end_city, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?)";
 
     db.query(sql, [name, country_id, city, start_date, end_date, price], (err, result) => {
         if (err) {
@@ -164,7 +166,7 @@ app.post('/tours', (req, res) => {
 
 
 // Привязка тура к клиенту и стране
-app.post('/assign-tour', (req, res) => {
+app.post('/assign-tours', (req, res) => {
     const { client_id, tour_id } = req.body; // Добавили client_id
     const sql = "INSERT INTO client_tours (client_id, tour_id) VALUES (?, ?)"; // Привязка по client_id и tour_id
 
@@ -174,6 +176,63 @@ app.post('/assign-tour', (req, res) => {
             return res.json({ message: "Error assigning tour", error: err });
         }
         res.json({ message: "Tour successfully assigned!" });
+    });
+});
+
+
+
+//------------------------------ТРАНСПОРТ------------------------------------//
+app.get('/transport/:client_id/:country_id/:tours_id', (req, res) => {
+    const { client_id, country_id, tours_id } = req.params;
+    console.log("Received params:", client_id, country_id, tours_id); // ЛОГИРУЕМ ВХОДНЫЕ ДАННЫЕ
+
+    if (!client_id || !country_id || !tours_id) {
+        return res.status(400).json({ message: "Missing parameters" });
+    }
+
+    const sql = "SELECT * FROM transport WHERE country = ?";
+    db.query(sql, [country_id], (err, result) => {
+        if (err) {
+            console.error("Error fetching transport:", err);
+            return res.status(500).json({ message: "Error fetching transport", error: err });
+        }
+        console.log("Transport found:", result); // ЛОГИРУЕМ РЕЗУЛЬТАТ
+        if (result.length === 0) {
+            return res.status(404).json({ message: "No transport found" });
+        }
+        return res.json(result);
+    });
+});
+
+
+
+
+// Добавляем транспорт клиенту
+app.post('/transport', (req, res) => {
+    const { transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country } = req.body;
+    const sql = "INSERT INTO transport (transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    db.query(sql, [transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country], (err, result) => {
+        if (err) {
+            console.error("Error adding transport:", err);
+            return res.json({ message: "Error adding transport", error: err });
+        }
+        return res.json({ id: result.insertId, transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country });
+    });
+});
+
+
+// Привязка тура к клиенту и стране
+app.post('/assign-transport', (req, res) => {
+    const { client_id, tour_id, transport_id } = req.body; // Добавили client_id
+    const sql = "INSERT INTO client_transport (client_id, tour_id, transport_id) VALUES (?, ?, ?)"; // Привязка по client_id и tour_id
+
+    db.query(sql, [client_id, tour_id, transport_id], (err, result) => {
+        if (err) {
+            console.error("Error assigning transport:", err);
+            return res.json({ message: "Error assigning transport", error: err });
+        }
+        res.json({ message: "Transport successfully assigned!" });
     });
 });
 

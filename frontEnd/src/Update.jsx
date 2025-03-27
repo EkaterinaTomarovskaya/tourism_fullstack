@@ -83,7 +83,8 @@ function Update() {
                     </div>
                     <div className='mb-2'>
                         <label htmlFor="">Middle Name</label>
-                        <input type="text" placeholder='Enter Middle Name' className='form-control' value={values.middle_name}
+                        <input type="text" placeholder='Enter
+                         Middle Name' className='form-control' value={values.middle_name}
                         onChange={e => setValues({...values, middle_name: e.target.value})}/>
                     </div>
                     <div className='mb-2'>
