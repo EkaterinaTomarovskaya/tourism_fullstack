@@ -182,42 +182,38 @@ app.post('/assign-tours', (req, res) => {
 
 
 //------------------------------ТРАНСПОРТ------------------------------------//
-app.get('/transport/:client_id/:country_id/:tours_id', (req, res) => {
-    const { client_id, country_id, tours_id } = req.params;
-    console.log("Received params:", client_id, country_id, tours_id); // ЛОГИРУЕМ ВХОДНЫЕ ДАННЫЕ
-
-    if (!client_id || !country_id || !tours_id) {
-        return res.status(400).json({ message: "Missing parameters" });
-    }
-
-    const sql = "SELECT * FROM transport WHERE country = ?";
-    db.query(sql, [country_id], (err, result) => {
-        if (err) {
-            console.error("Error fetching transport:", err);
-            return res.status(500).json({ message: "Error fetching transport", error: err });
+// Маршрут для получения транспорта по стране и туру
+app.get('/transport/:tour_id', (req, res) => {
+    const { tour_id } = req.params;
+    const tourSql = "SELECT end_city FROM tours WHERE id = ?";
+    
+    db.query(tourSql, [tour_id], (tourErr, tourResult) => {
+        if (tourErr || tourResult.length === 0) {
+            return res.status(404).json({ message: "Tour not found" });
         }
-        console.log("Transport found:", result); // ЛОГИРУЕМ РЕЗУЛЬТАТ
-        if (result.length === 0) {
-            return res.status(404).json({ message: "No transport found" });
-        }
-        return res.json(result);
+        const city = tourResult[0].end_city;
+        const transportSql = "SELECT * FROM transport WHERE end_city = ?";
+        db.query(transportSql, [city], (transportErr, transportResult) => {
+            if (transportErr) {
+                return res.status(500).json({ message: "Error fetching transport", error: transportErr });
+            }
+            return res.json(transportResult);
+        });
     });
 });
 
 
-
-
 // Добавляем транспорт клиенту
 app.post('/transport', (req, res) => {
-    const { transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country } = req.body;
-    const sql = "INSERT INTO transport (transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const { transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, price, country } = req.body;
+    const sql = "INSERT INTO transport (transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, price, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country], (err, result) => {
+    db.query(sql, [transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, price, country], (err, result) => {
         if (err) {
             console.error("Error adding transport:", err);
             return res.json({ message: "Error adding transport", error: err });
         }
-        return res.json({ id: result.insertId, transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, country });
+        return res.json({ id: result.insertId, transport_type, company, flight_number, start_city, end_city, start_date, end_date, travel_time, price, country });
     });
 });
 
@@ -233,6 +229,64 @@ app.post('/assign-transport', (req, res) => {
             return res.json({ message: "Error assigning transport", error: err });
         }
         res.json({ message: "Transport successfully assigned!" });
+    });
+});
+
+
+//------------------------------ОТЕЛИ------------------------------------//
+// Маршрут для получения транспорта по стране и туру
+app.get('/hotel/:tour_id', (req, res) => {
+    const { tour_id } = req.params;
+    const tourSql = "SELECT end_city FROM tours WHERE id = ?";
+    
+    db.query(tourSql, [tour_id], (tourErr, tourResult) => {
+        if (tourErr) {
+            console.error("Error fetching tour:", tourErr);
+            return res.status(500).json({ message: "Error fetching tour", error: tourErr });
+        }
+        if (tourResult.length === 0) {
+            return res.status(404).json({ message: "Tour not found" });
+        }
+        const city = tourResult[0].end_city;
+        const hotelSql = "SELECT * FROM hotels WHERE end_city = ?";
+        db.query(hotelSql, [city], (hotelErr, hotelResult) => {
+            if (hotelErr) {
+                console.error("Error fetching hotels:", hotelErr);
+                return res.status(500).json({ message: "Error fetching hotels", error: hotelErr });
+            }
+            return res.json(hotelResult);
+        });
+    });
+});
+
+
+
+// Добавляем транспорт клиенту
+app.post('/hotel', (req, res) => {
+    const { name, category, location, price, end_city } = req.body;
+    const sql = "INSERT INTO hotels (name, category, end_city, price) VALUES (?, ?, ?, ?)";
+
+    db.query(sql, [name, category, location, price, end_city], (err, result) => {
+        if (err) {
+            console.error("Error adding hotel:", err);
+            return res.json({ message: "Error adding hotel", error: err });
+        }
+        return res.json({ id: result.insertId, name, category, end_city, price });
+    });
+});
+
+
+// Привязка тура к клиенту и стране
+app.post('/assign-hotel', (req, res) => {
+    const { client_id, tour_id, hotel_id } = req.body;
+    const sql = "INSERT INTO client_hotel (client_id, tour_id, hotel_id) VALUES (?, ?, ?)";
+
+    db.query(sql, [client_id, tour_id, hotel_id], (err, result) => {
+        if (err) {
+            console.error("Error assigning hotel:", err);
+            return res.json({ message: "Error assigning hotel", error: err });
+        }
+        res.json({ message: "Hotel successfully assigned!" });
     });
 });
 

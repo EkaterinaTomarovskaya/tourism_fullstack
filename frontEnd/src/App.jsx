@@ -8,6 +8,8 @@ import Update from './Update';
 import HomeCountry from './HomeCountry';
 import HomeTours from './HomeTours';
 import HomeTransport from './HomeTransport';
+import HomeHotel from './HomeHotel';
+
 
 function App() {
   return (
@@ -19,7 +21,8 @@ function App() {
             <Route path='/edit/:id' element={<Update />} />
             <Route path='/country/:id' element={<HomeCountry />} />
             <Route path='/tours/:client_id/:country_id' element={<HomeTours />} />
-            <Route path='/transport/:client_id/:country_id/:tours_id' element={<HomeTransport />} />   
+            <Route path='/transport/:client_id/:country_id/:tours_id' element={<HomeTransport />} />    
+            <Route path="/hotels/:client_id/:tours_id" element={<HomeHotel />} />
         </Routes>
     </BrowserRouter>
   );

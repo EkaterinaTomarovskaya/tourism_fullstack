@@ -75,39 +75,38 @@ function Update() {
         <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
             <div className='w-50 bg-white rounded p-3'>
                 <form onSubmit={handleUpdate}>
-                    <h2>Update clients</h2>
+                    <h2>Обновить данные клиента</h2>
                     <div className='mb-2'>
-                        <label htmlFor="">First Name</label>
-                        <input type="text" placeholder='Enter First Name' className='form-control' value={values.first_name}
+                        <label htmlFor="">Имя</label>
+                        <input type="text" placeholder='Имя' className='form-control' value={values.first_name}
                         onChange={e => setValues({...values, first_name: e.target.value})}/>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor="">Middle Name</label>
-                        <input type="text" placeholder='Enter
-                         Middle Name' className='form-control' value={values.middle_name}
+                        <label htmlFor="">Отчество</label>
+                        <input type="text" placeholder='Отчество' className='form-control' value={values.middle_name}
                         onChange={e => setValues({...values, middle_name: e.target.value})}/>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor="">Last Name</label>
-                        <input type="text" placeholder='Enter Last Name' className='form-control' value={values.last_name}
+                        <label htmlFor="">Фамилия</label>
+                        <input type="text" placeholder='Фамилия' className='form-control' value={values.last_name}
                         onChange={e => setValues({...values, last_name: e.target.value})}/>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor="">Passport</label>
-                        <input type="passport" placeholder='Enter Passport' className='form-control'
+                        <label htmlFor="">Паспорт</label>
+                        <input type="passport" placeholder='Паспорт' className='form-control'
                         onChange={e => setValues({...values, passport_number: e.target.value})}/>
                     </div>
                     <div className='mb-2'>
-                        <label htmlFor="">Phone</label>
-                        <input type="phone" placeholder='Enter Phone' className='form-control' value={values.phone}
+                        <label htmlFor="">Телефон</label>
+                        <input type="phone" placeholder='Телефон' className='form-control' value={values.phone}
                         onChange={e => setValues({...values, phone: e.target.value})}/> 
                     </div>
                     <div className='mb-2'>
                         <label htmlFor="">Email</label>
-                        <input type="email" placeholder='Enter Email' className='form-control' value={values.contact_info}
+                        <input type="email" placeholder='Email' className='form-control' value={values.contact_info}
                         onChange={e => setValues({...values, contact_info: e.target.value})}/> 
                     </div>
-                    <button className='btn btn-success'>Update</button>
+                    <button className='btn btn-success'>Обновить</button>
                 </form>
             </div>
         </div>
