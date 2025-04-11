@@ -34,7 +34,7 @@ function HomeTours() {
     return (
         <div className="d-flex vh-100 bg-white justify-content-center align-items-center">
             <div className="w-50 bg-white rounded p-3">
-                <h2>Select a Tour</h2>
+                <h2>Выберите тур</h2>
                 <div className="d-flex justify-content-end">
                     <Link to={`/country/${client_id}`} className="btn btn-primary">Назад</Link>
                 </div>

@@ -3,20 +3,34 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function HomeHotel() {
-    const {client_id, tours_id } = useParams();
-    const [hotels, setHotels] = useState([]); // Переименовано в hotels для ясности
+    const { client_id, tours_id } = useParams();
+    const [hotelsByCategory, setHotelsByCategory] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [tourCity, setTourCity] = useState('');
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [selectedHotel, setSelectedHotel] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         setLoading(true);
         axios.get(`http://localhost:8081/hotel/${tours_id}`)
             .then(res => {
-                setHotels(res.data); // Исправлено setTransport на setHotels
-                if (res.data.length > 0) setTourCity(res.data[0].location); // Исправлено end_city на location
+                if (res.data.length > 0) {
+                    setTourCity(res.data[0].end_city);
+                    
+                    // Группируем отели по категориям
+                    const grouped = res.data.reduce((acc, hotel) => {
+                        const category = hotel.category;
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push(hotel);
+                        return acc;
+                    }, {});
+                    
+                    setHotelsByCategory(grouped);
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -30,115 +44,162 @@ function HomeHotel() {
         axios.post(`http://localhost:8081/assign-hotel`, { 
             client_id, 
             tour_id: tours_id, 
-            hotel_id
+            hotel_id 
         })
-        .then(() => navigate(`/`)) // После выбора отеля — переход на главную
+        .then(() => navigate(`/`))
         .catch(err => console.log(err));
     };
 
-    const navigateToFirst = () => setCurrentIndex(0);
-    const navigateToPrev = () => setCurrentIndex(prev => Math.max(0, prev - 1));
-    const navigateToNext = () => setCurrentIndex(prev => Math.min(hotels.length - 1, prev + 1)); 
-    const navigateToLast = () => setCurrentIndex(hotels.length - 1); 
+    const handleShowDetails = (hotel) => {
+        setSelectedHotel(hotel);
+        setShowModal(true);
+    };
 
-    if (loading) return (
-        <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
-            <div className='w-50 bg-white rounded p-3 text-center'>
-                Загрузка вариантов отелей...
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedHotel(null);
+    };
+
+    if (loading) return <div className="text-center my-5">Загрузка отелей...</div>;
+    if (error) return <div className="alert alert-danger text-center">{error}</div>;
+    if (Object.keys(hotelsByCategory).length === 0) return <div className="alert alert-info text-center">Нет доступных отелей</div>;
+
+    // Определяем порядок отображения категорий
+    const categoriesOrder = ['5 звезд', '4 звезды', '3 звезды', '2 звезды', '1 звезда'];
+
+     return (
+        <div className="container py-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>Выбор отелей в {tourCity}</h2>
+                <Link to={`/country/${client_id}`} className="btn btn-primary">Назад</Link>
             </div>
-        </div>
-    );
 
-    if (error) return (
-        <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
-            <div className='w-50 bg-white rounded p-3 text-center alert alert-danger'>
-                {error}
-            </div>
-        </div>
-    );
+            {categoriesOrder.map(category => (
+                hotelsByCategory[category] && (
+                    <div key={category} className="mb-5">
+                        <div className="d-flex align-items-center mb-3">
+                            <h3 className="mb-0 mr-3">{category}</h3>
+                            <span className="badge bg-warning text-dark rounded-pill">
+                                {hotelsByCategory[category].length} вариантов
+                            </span>
+                        </div>
+                        
+                        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            {hotelsByCategory[category].map(hotel => (
+                                <div key={hotel.id} className="col">
+                                    <div className="card h-100 shadow-sm">
+                                        <div className="card-body">
+                                            <h5 className="card-title">{hotel.name}</h5>
+                                            <div className="card-text">
+                                                <small className="text-muted d-block mb-2">
+                                                    {hotel.location}
+                                                </small>
+                                                <strong className="text-success">
+                                                    {hotel.price?.toLocaleString()} ₽
+                                                </strong>
+                                            </div>
+                                        </div>
+                                        <div className="card-footer bg-transparent border-top-0">
+                                            <button 
+                                                className="btn btn-primary w-50"
+                                                onClick={() => handleSelectHotel(hotel.id)}>
+                                                Выбрать
+                                            </button>
+                                            <button 
+                                                    className="btn btn-outline-secondary w-40 ms-3"
+                                                    onClick={() => handleShowDetails(hotel)}
+                                                >
+                                                    Подробнее
+                                                </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )
+            ))}
+        {/* Модальное окно с использованием стандартного Bootstrap */}
+        {showModal && (
+                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{selectedHotel?.name}</h5>
+                                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                            </div>
+                            <div className="modal-body">
+                                {selectedHotel && (
+                                    <>
+                            <div className="mb-3">
+                                <h5>Информация об отеле</h5>
+                                <p><strong>Категория:</strong> {selectedHotel.category}</p>
+                                <p><strong>Город:</strong> {selectedHotel.end_city}</p>
+                                <p><strong>Цена:</strong> {selectedHotel.price?.toLocaleString()} ₽</p>
+                            </div>
 
-    if (hotels.length === 0) return (
-        <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
-            <div className='w-50 bg-white rounded p-3 text-center alert alert-info'>
-                Нет доступных вариантов отелей
-            </div>
-        </div>
-    );
+                            {selectedHotel.description && (
+                                <div className="mb-3">
+                                    <h5>Описание</h5>
+                                    <p>{selectedHotel.description}</p>
+                                </div>
+                            )}
 
-    const currentHotel = hotels[currentIndex]; 
+                            {selectedHotel.amenities && (
+                                <div className="mb-3">
+                                    <h5>Удобства</h5>
+                                    <p>{selectedHotel.amenities}</p>
+                                </div>
+                            )}
 
-    return (
-        <div className='d-flex vh-100 bg-white justify-content-center align-items-center'>
-            <div className='w-50 bg-white rounded p-3'>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="mb-0">Выбор отелей в {tourCity}</h2>
-                    <Link to={`/country/${client_id}`} className="btn btn-primary">Назад</Link>
-                </div>
+                            {selectedHotel.rooms !== undefined && (
+                                <div className="mb-3">
+                                    <h5>Количество комнат</h5>
+                                    <p>{selectedHotel.rooms}</p>
+                                </div>
+                            )}
 
-                <div className='card mb-3'>
-                    <div className='card-body'>
-                        <h5 className='card-title text-center mb-4'>
-                            {currentHotel.name} - {currentHotel.category}
-                        </h5>
+                            {selectedHotel.distance_to_sea !== undefined && (
+                                <div className="mb-3">
+                                    <h5>Расстояние до моря</h5>
+                                    <p>{selectedHotel.distance_to_sea} км</p>
+                                </div>
+                            )}
 
-                        <div className="mb-3">
-                            <div><strong>Название:</strong> {currentHotel.name}</div>
-                            <div><strong>Категория:</strong> {currentHotel.category}</div>
-                            <div><strong>Расположение:</strong> {currentHotel.location}</div>
-                            <div><strong>Цена:</strong> {currentHotel.price?.toLocaleString()} ₽</div>
+                            {selectedHotel.contact_info && (
+                                <div className="mb-3">
+                                    <h5>Контактная информация</h5>
+                                    <p>{selectedHotel.contact_info}</p>
+                                </div>
+                            )}
+                                    </>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary" 
+                                    onClick={handleCloseModal}
+                                >
+                                    Закрыть
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        if (selectedHotel) {
+                                            handleSelectHotel(selectedHotel.id);
+                                            handleCloseModal();
+                                        }
+                                    }}
+                                >
+                                    Выбрать этот отель
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Кнопки навигации */}
-                <div className='d-flex justify-content-center mb-4 gap-2'>
-                    <button 
-                        onClick={navigateToFirst}
-                        className='btn btn-outline-secondary'
-                        disabled={currentIndex === 0 || hotels.length === 0} 
-                        title="Первый вариант"
-                    >
-                        |←
-                    </button>
-                    <button 
-                        onClick={navigateToPrev}
-                        className='btn btn-outline-secondary'
-                        disabled={currentIndex === 0 || hotels.length === 0} 
-                        title="Предыдущий"
-                    >
-                        ←
-                    </button>
-                    <button 
-                        onClick={navigateToNext}
-                        className='btn btn-outline-secondary'
-                        disabled={currentIndex === hotels.length - 1 || hotels.length === 0} 
-                        title="Следующий"
-                    >
-                        →
-                    </button>
-                    <button 
-                        onClick={navigateToLast}
-                        className='btn btn-outline-secondary'
-                        disabled={currentIndex === hotels.length - 1 || hotels.length === 0} 
-                        title="Последний вариант"
-                    >
-                        →|
-                    </button>
-                </div>
-
-                <div className="text-center">
-                    <button 
-                        className="btn btn-success"
-                        onClick={() => handleSelectHotel(currentHotel.id)} 
-                    >
-                        Выбрать
-                    </button>
-                </div>
-
-                <div className='text-center mt-2 text-muted'>
-                    Вариант {currentIndex + 1} из {hotels.length} 
-                </div>
-            </div>
+            )}
         </div>
     );
 }

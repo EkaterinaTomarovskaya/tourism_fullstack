@@ -24,7 +24,8 @@ const countryData = [
   { id: '24', name: 'Швейцария', iso: 'ch' },
   { id: '23', name: 'Швеция', iso: 'se' },
   { id: '16', name: 'Шри-Ланка', iso: 'lk' },
-  { id: '21', name: 'Япония', iso: 'jp' }
+  { id: '21', name: 'Япония', iso: 'jp' },
+  { id: '22', name: 'Дивногория', iso: 'ru' }
 ];
 
 function HomeCountry() {

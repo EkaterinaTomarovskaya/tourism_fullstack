@@ -9,6 +9,7 @@ import HomeCountry from './HomeCountry';
 import HomeTours from './HomeTours';
 import HomeTransport from './HomeTransport';
 import HomeHotel from './HomeHotel';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {

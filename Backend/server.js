@@ -263,15 +263,15 @@ app.get('/hotel/:tour_id', (req, res) => {
 
 // Добавляем транспорт клиенту
 app.post('/hotel', (req, res) => {
-    const { name, category, location, price, end_city } = req.body;
-    const sql = "INSERT INTO hotels (name, category, end_city, price) VALUES (?, ?, ?, ?)";
+    const { name, category, end_city, price, description, amenities, rooms, distance_to_sea, contact_info } = req.body;
+    const sql = "INSERT INTO hotels (name, category, end_city, price, description, amenities, rooms, distance_to_sea, contact_info) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [name, category, location, price, end_city], (err, result) => {
+    db.query(sql, [name, category, end_city, price, description, amenities, rooms, distance_to_sea, contact_info], (err, result) => {
         if (err) {
             console.error("Error adding hotel:", err);
             return res.json({ message: "Error adding hotel", error: err });
         }
-        return res.json({ id: result.insertId, name, category, end_city, price });
+        return res.json({ id: result.insertId, name, category, end_city, price, description, amenities, rooms, distance_to_sea, contact_info });
     });
 });
 
