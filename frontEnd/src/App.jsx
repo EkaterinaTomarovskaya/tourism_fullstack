@@ -9,6 +9,8 @@ import HomeCountry from './HomeCountry';
 import HomeTours from './HomeTours';
 import HomeTransport from './HomeTransport';
 import HomeHotel from './HomeHotel';
+import HomeRooms from './HomeRooms';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -24,6 +26,8 @@ function App() {
             <Route path='/tours/:client_id/:country_id' element={<HomeTours />} />
             <Route path='/transport/:client_id/:country_id/:tours_id' element={<HomeTransport />} />    
             <Route path="/hotels/:client_id/:tours_id" element={<HomeHotel />} />
+            <Route path="/rooms/:client_id/:tour_id/:hotel_id" element={<HomeRooms />} />
+            
         </Routes>
     </BrowserRouter>
   );

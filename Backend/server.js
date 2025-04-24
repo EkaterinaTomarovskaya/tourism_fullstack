@@ -291,6 +291,64 @@ app.post('/assign-hotel', (req, res) => {
 });
 
 
+//------------------------------КОМНАТЫ------------------------------------//
+
+// Получаем список комнат для конкретного отеля
+app.get('/rooms/:hotel_id', (req, res) => {
+    const { hotel_id } = req.params;
+    const sql = "SELECT * FROM rooms WHERE hotel_id = ?";
+    
+    db.query(sql, [hotel_id], (err, result) => {
+        if (err) {
+            console.error("Error fetching rooms:", err);
+            return res.status(500).json({ message: "Error fetching rooms", error: err });
+        }
+        return res.json(result);
+    });
+});
+
+// Добавляем комнату в отель
+app.post('/rooms', (req, res) => {
+    const { hotel_id, room_number, room_type, floor, capacity, description, amenities } = req.body;
+    const sql = "INSERT INTO rooms (hotel_id, room_number, room_type, floor, capacity, description, amenities) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    db.query(sql, [hotel_id, room_number, room_type, floor, capacity, description, amenities], (err, result) => {
+        if (err) {
+            console.error("Error adding room:", err);
+            return res.status(500).json({ message: "Error adding room", error: err });
+        }
+        return res.json({ 
+            id: result.insertId, 
+            hotel_id, 
+            room_number, 
+            room_type, 
+            floor, 
+            capacity, 
+            description, 
+            amenities 
+        });
+    });
+});
+
+// Привязка комнаты к клиенту, туру и отелю
+app.post('/assign-room', (req, res) => {
+    const { client_id, tour_id, hotel_id, room_id } = req.body;
+    const sql = "INSERT INTO client_room (client_id, tour_id, hotel_id, room_id) VALUES (?, ?, ?, ?)";
+
+    db.query(sql, [client_id, tour_id, hotel_id, room_id], (err, result) => {
+        if (err) {
+            console.error("Error assigning room:", err);
+            return res.status(500).json({ message: "Error assigning room", error: err });
+        }
+        res.json({ message: "Room successfully assigned!" });
+    });
+});
+
+
+
+
+
+
 // Запускаем сервер
 app.listen(8081, () => {
     console.log("Listening on port 8081");

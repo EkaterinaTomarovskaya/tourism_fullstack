@@ -17,8 +17,9 @@ function HomeHotel() {
         axios.get(`http://localhost:8081/hotel/${tours_id}`)
             .then(res => {
                 if (res.data.length > 0) {
-                    setTourCity(res.data[0].end_city);
-                    
+                    if (res.data.length > 0) setTourCity(res.data[0].end_city);
+                    setLoading(false);
+
                     // Группируем отели по категориям
                     const grouped = res.data.reduce((acc, hotel) => {
                         const category = hotel.category;
@@ -46,7 +47,7 @@ function HomeHotel() {
             tour_id: tours_id, 
             hotel_id 
         })
-        .then(() => navigate(`/`))
+        .then(() => navigate(`/rooms/${client_id}/${tours_id}/${hotel_id}`))
         .catch(err => console.log(err));
     };
 
