@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function HomeRooms() {
-    const { client_id, tour_id, hotel_id } = useParams();
+    // Правильная деструктуризация: room_id здесь не нужен на этапе загрузки страницы
+    const { client_id, country_id, tour_id, transport_id, hotel_id } = useParams();
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,23 +30,26 @@ function HomeRooms() {
         fetchData();
     }, [hotel_id]);
 
+
     const handleSelectRoom = (room_id) => {
         axios.post(`http://localhost:8081/assign-room`, {
             client_id,
+            country_id,
             tour_id,
+            transport_id,
             hotel_id,
             room_id
         })
-        .then(() => navigate(`/confirmation/${client_id}/${hotel_id}`))
+        .then(() => navigate(`/confirmation/${client_id}/${country_id}/${tour_id}/${transport_id}/${hotel_id}/${room_id}`))
         .catch(err => {
             console.error("Ошибка при выборе номера:", err);
             alert("Ошибка при выборе номера");
         });
 
-        
+
     };
 
-  
+
     const handleShowDetails = (room) => {
         setSelectedRoom(room);
         setShowModal(true);
@@ -64,13 +68,13 @@ function HomeRooms() {
         <div className='container my-5'>
             <div className='mb-4'>
                 <h2>Выбор номеров в отеле</h2>
-                <Link to={`/country/${client_id}`} className="btn btn-primary">Назад</Link>
+                <Link to={`/hotels/${client_id}/${country_id}/${tour_id}/${transport_id}`} className="btn btn-primary">Назад к отелям</Link>
             </div>
 
             <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                 {rooms.map(room => (
                     <div key={room.id} className="col">
-                        <div 
+                        <div
                             className="card h-100 shadow-sm position-relative room-card"
                             onMouseEnter={() => setHoveredRoom(room.id)}
                             onMouseLeave={() => setHoveredRoom(null)}
@@ -94,7 +98,7 @@ function HomeRooms() {
                                     </button>
                                     <button
                                         className="btn btn-outline-light"
-                                        onClick={() => handleSelectRoom(room_id)}
+                                        onClick={() => handleSelectRoom(room.id)}
                                     >
                                         Выбрать
                                     </button>

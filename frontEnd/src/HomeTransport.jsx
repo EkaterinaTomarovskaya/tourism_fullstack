@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function HomeTransport() {
-    const { client_id, country_id, tours_id } = useParams();
+    const { client_id, country_id, tour_id } = useParams();
     const [transport, setTransport] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,7 +13,7 @@ function HomeTransport() {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`http://localhost:8081/transport/${tours_id}`)
+        axios.get(`http://localhost:8081/transport/${tour_id}`)
             .then(res => {
                 setTransport(res.data);
                 if (res.data.length > 0) setTourCity(res.data[0].end_city);
@@ -24,15 +24,16 @@ function HomeTransport() {
                 setError('Ошибка загрузки вариантов транспорта');
                 setLoading(false);
             });
-    }, [tours_id]);
+    }, [tour_id]);
 
     const handleSelectTransport = (transport_id) => {
-        axios.post(`http://localhost:8081/assign-transport`, { 
-            client_id, 
-            tour_id: tours_id, 
-            transport_id 
+        axios.post(`http://localhost:8081/assign-transport`, {
+            client_id,
+            country_id, // Убедитесь, что country_id отправляется
+            tour_id,    // Убедитесь, что tour_id отправляется
+            transport_id
         })
-        .then(() => navigate(`/hotels/${client_id}/${tours_id}`))
+        .then(() => navigate(`/hotels/${client_id}/${country_id}/${tour_id}/${transport_id}`)) // УБЕДИТЕСЬ, ЧТО ВСЕ ПАРАМЕТРЫ ПЕРЕДАЮТСЯ
         .catch(err => console.log(err));
     };
 

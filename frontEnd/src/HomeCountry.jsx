@@ -28,19 +28,27 @@ const countryData = [
 ];
 
 function HomeCountry() {
-  const { id } = useParams();
+  const { client_id } = useParams(); // Это client_id
+  console.log("HomeCountry - client_id:", client_id);
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState([]); // Или вы загружаете их из БД
 
   useEffect(() => {
     const sortedCountries = countryData.sort((a, b) => a.name.localeCompare(b.name));
     setCountries(sortedCountries);
   }, []);
 
-  const handleSelectCountry = (countryName) => {
-    navigate(`/tours/${id}/${countryName}`);
-  };
+  const handleSelectCountry = (country_id) => { // Здесь должен быть ID страны
+    // Отправляем запрос на связывание клиента со страной (если это отдельный шаг)
+    axios.post(`http://localhost:8081/assign-country`, { client_id, country_id})
+        .then(res => {
+            // После успешного назначения, переходим к выбору туров,
+            // передавая client_id И country_id
+            navigate(`/tours/${client_id}/${country_id}`);
+        })
+        .catch(err => console.error("Ошибка при назначении страны:", err));
+};
 
   // Навигация как в компоненте клиентов
   const navigateToFirst = () => setCurrentIndex(0);
@@ -112,7 +120,7 @@ function HomeCountry() {
         {/* Кнопка выбора */}
         <div className='d-flex justify-content-center'>
           <button
-            onClick={() => handleSelectCountry(countries[currentIndex].name)}
+onClick={() => handleSelectCountry(countries[currentIndex].id)}
             className='btn btn-success'
             disabled={countries.length === 0}
           >

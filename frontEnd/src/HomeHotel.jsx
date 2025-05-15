@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function HomeHotel() {
-    const { client_id, tours_id } = useParams();
+    const { client_id, country_id, tour_id, transport_id } = useParams(); // Деструктурируем все
     const [hotelsByCategory, setHotelsByCategory] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,7 +14,7 @@ function HomeHotel() {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`http://localhost:8081/hotel/${tours_id}`)
+        axios.get(`http://localhost:8081/hotel/${tour_id}`)
             .then(res => {
                 if (res.data.length > 0) {
                     if (res.data.length > 0) setTourCity(res.data[0].end_city);
@@ -39,15 +39,17 @@ function HomeHotel() {
                 setError('Ошибка загрузки вариантов отелей');
                 setLoading(false);
             });
-    }, [tours_id]);
+    }, [tour_id]);
 
     const handleSelectHotel = (hotel_id) => {
-        axios.post(`http://localhost:8081/assign-hotel`, { 
-            client_id, 
-            tour_id: tours_id, 
-            hotel_id 
+        axios.post(`http://localhost:8081/assign-hotel`, {
+            client_id,
+            country_id,    // Убедитесь, что это передается
+            tour_id,       // Убедитесь, что это передается
+            transport_id,  // Убедитесь, что это передается
+            hotel_id
         })
-        .then(() => navigate(`/rooms/${client_id}/${tours_id}/${hotel_id}`))
+        .then(() => navigate(`/rooms/${client_id}/${country_id}/${tour_id}/${transport_id}/${hotel_id}`)) // УБЕДИТЕСЬ, ЧТО ВСЕ ПАРАМЕТРЫ ПЕРЕДАЮТСЯ
         .catch(err => console.log(err));
     };
 
