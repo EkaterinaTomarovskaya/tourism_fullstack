@@ -24,7 +24,7 @@ function ClientSummary() {
                     axios.get(`http://localhost:8081/read/${client_id}`),
                     axios.get(`http://localhost:8081/countries/${country_id}`),
                     axios.get(`http://localhost:8081/tours/${tour_id}`),
-                    axios.get(`http://localhost:8081/transport/${transport_id}`),
+                    axios.get(`http://localhost:8081/transport/details/${transport_id}`),
                     axios.get(`http://localhost:8081/hotels/${hotel_id}`),
                     axios.get(`http://localhost:8081/rooms/details/${room_id}`)                ]);
     
@@ -65,6 +65,7 @@ function ClientSummary() {
             <div className="card-body">
                 <h5 className="card-title">Клиент</h5>
                 <p><strong>Имя:</strong> {client?.[0]?.first_name} {client?.[0]?.last_name} {client?.[0]?.middle_name}</p> {/* Обратите внимание на [0] и ?. */}
+                <p><strong>Паспорт:</strong> {client?.[0]?.passport_number || 'Нет данных'}</p> {/* Предполагаем наличие поля phone */}
                 <p><strong>Email:</strong> {client?.[0]?.contact_info || 'Нет данных'}</p> {/* Предполагаем наличие поля email */}
                 <p><strong>Телефон:</strong> {client?.[0]?.phone || 'Нет данных'}</p> {/* Предполагаем наличие поля phone */}
             </div>
@@ -92,12 +93,13 @@ function ClientSummary() {
                 <div className="card-body">
                     <h5 className="card-title">Tранспорт</h5>
                     {transport.transport_type && <p><strong>Тип транспорта:</strong> {transport.transport_type}</p>}
-                    {transport.company && <p><strong>Рейс:</strong> {transport.company}</p>}
-                    {transport.flight_number && <p><strong>Flight/Route:</strong> {transport.flight_number}</p>}
-                    {transport.start_city && <p><strong>Departure:</strong> {transport.start_city}, {new Date(transport.start_date).toLocaleDateString()}</p>}
-                    {transport.end_city && <p><strong>Arrival:</strong> {transport.end_city}, {new Date(transport.end_date).toLocaleDateString()}</p>}
-                    {transport.travel_time && <p><strong>Travel Time:</strong> {transport.travel_time}</p>}
-                    {transport.price && <p><strong>Price:</strong> {transport.price.toLocaleString()} ₽</p>}
+                    {transport.company && <p><strong>Компания:</strong> {transport.company}</p>}
+                    {transport.flight_number && <p><strong>Рейс:</strong> {transport.flight_number}</p>}
+                    {transport.start_city && <p><strong>Отправление:</strong> {transport.start_city}, {new Date(transport.start_date).toLocaleDateString()}</p>}
+                    {transport.end_city && <p><strong>Прибытие:</strong> {transport.end_city}, {new Date(transport.end_date).toLocaleDateString()}</p>}
+                    {transport.travel_time && <p><strong>Время в пути:</strong> {transport.travel_time}</p>}
+                    {transport.country&& <p><strong>Страна:</strong> {transport.country}</p>}
+                    {transport.price && <p><strong>Цена:</strong> {transport.price.toLocaleString()} ₽</p>}
                 </div>
             </div>
 
@@ -105,8 +107,9 @@ function ClientSummary() {
                 <div className="card-body">
                     <h5 className="card-title">Отель</h5>
                     <p><strong>Название:</strong> {hotel.name}</p>
-                    {/* <p><strong>Адрес:</strong> {hotel.address}</p> */}
-                    <p><strong>Рейтинг:</strong> {hotel.rating}★</p>
+                    <p><strong>Категория:</strong> {hotel.category}</p>
+                    {hotel.price && <p><strong>Цена:</strong> {hotel.price.toLocaleString()} ₽</p>}
+                    <p><strong>Контактная информация:</strong> {hotel.contact_info}</p>
                 </div>
             </div>
 
@@ -116,6 +119,8 @@ function ClientSummary() {
                     <p><strong>Номер:</strong> {room.room_number}</p>
                     <p><strong>Тип:</strong> {room.room_type}</p>
                     <p><strong>Описание:</strong> {room.description}</p>
+                    <p><strong>Удобства:</strong> {room.amenities}</p>
+                    <p><strong>Вместимость:</strong> {room.capacity} чел.</p>
                 </div>
             </div>
 

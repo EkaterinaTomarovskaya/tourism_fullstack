@@ -119,7 +119,6 @@ function HomeRooms() {
                         </div>
                         <div className="modal-body">
                         <p><strong>Тип:</strong> {selectedRoom.room_type}</p>
-                        <p><strong>Этаж:</strong> {selectedRoom.floor}</p>
                         <p><strong>Описание:</strong> {selectedRoom.description}</p>
                         <p><strong>Удобства:</strong> {selectedRoom.amenities}</p>
                         <p><strong>Вместимость:</strong> {selectedRoom.capacity} чел.</p>

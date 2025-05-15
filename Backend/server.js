@@ -197,7 +197,20 @@ app.post('/assign-tours', (req, res) => {
 
 
 //------------------------------ТРАНСПОРТ------------------------------------//
-
+app.get('/transport/details/:transport_id', (req, res) => { // Изменили название маршрута, чтобы избежать конфликтов
+    const { transport_id } = req.params;
+    const sql = "SELECT * FROM transport WHERE id = ?"; 
+    db.query(sql, [transport_id], (err, result) => {
+        if (err) {
+            console.error("Ошибка при получении транспорта по ID:", err);
+            return res.status(500).json({ message: "Ошибка при получении транспорта", error: err.message });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Транспорт не найден" });
+        }
+        return res.json(result[0]); // Возвращаем ТОЛЬКО ОДИН объект
+    });
+});
 
 // Маршрут для получения транспорта по стране и туру
 app.get('/transport/:tour_id', (req, res) => {
@@ -214,7 +227,7 @@ app.get('/transport/:tour_id', (req, res) => {
             if (transportErr) {
                 return res.status(500).json({ message: "Error fetching transport", error: transportErr });
             }
-            return res.json(transportResult);
+            return res.json(transportResult); // Возвращаем МАССИВ объектов
         });
     });
 });
