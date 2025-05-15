@@ -39,7 +39,7 @@ function HomeTours() {
                     <Link to={`/country/${client_id}`} className="btn btn-primary">Назад</Link>
                 </div>
 
-                <h3>Доступные туры в стране {country_id}</h3>
+                <h3>Доступные туры</h3>
                 {loading && <p>Loading tours...</p>}
                 {error && <p>{error}</p>}
                 <ul className="list-group">
